@@ -1585,8 +1585,9 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                             required={formData.jenjang !== "MADIN"}
                             placeholder={formData.jenjang === "MADIN" ? "Opsional (Tidak Wajib)" : "NISN wajib 10 digit"}
                             value={formData.nisn}
-                            onChange={(e) => setFormData({ ...formData, nisn: e.target.value.replace(/\D/g, "") })}
-                            className="w-full text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50"
+                            onChange={(e) => setFormData({ ...formData, nisn: e.target.value })}
+                            inputMode="numeric"
+                            className="w-full text-slate-900 text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50"
                             id="input-nisn"
                           />
                         </div>
@@ -1601,8 +1602,9 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                             required
                             placeholder="Sesuai Kartu Keluarga (16 digit)"
                             value={formData.nik}
-                            onChange={(e) => setFormData({ ...formData, nik: e.target.value.replace(/\D/g, "") })}
-                            className="w-full text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50"
+                            onChange={(e) => setFormData({ ...formData, nik: e.target.value })}
+                            inputMode="numeric"
+                            className="w-full text-slate-900 text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50"
                             id="input-nik"
                           />
                         </div>
@@ -1616,8 +1618,8 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                             required
                             placeholder="Tuliskan Sesuai Akta Kelahiran"
                             value={formData.nama}
-                            onChange={(e) => setFormData({ ...formData, nama: e.target.value.toUpperCase() })}
-                            className="w-full text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 uppercase bg-slate-50/50"
+                            onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
+                            className="w-full text-slate-900 text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 uppercase bg-slate-50/50"
                             id="input-nama"
                           />
                         </div>
@@ -1774,8 +1776,9 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                               maxLength={5}
                               placeholder="5 Digit"
                               value={formData.kodepos}
-                              onChange={(e) => setFormData({ ...formData, kodepos: e.target.value.replace(/\D/g, "") })}
-                              className="w-full text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50"
+                              onChange={(e) => setFormData({ ...formData, kodepos: e.target.value })}
+                              inputMode="numeric"
+                              className="w-full text-slate-900 text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50"
                               id="input-kodepos"
                             />
                           </div>
@@ -1852,8 +1855,9 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                             required
                             placeholder="NIK Ayah/Wali (16 digit)"
                             value={formData.nikOrtu}
-                            onChange={(e) => setFormData({ ...formData, nikOrtu: e.target.value.replace(/\D/g, "") })}
-                            className="w-full text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50"
+                            onChange={(e) => setFormData({ ...formData, nikOrtu: e.target.value })}
+                            inputMode="numeric"
+                            className="w-full text-slate-900 text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50"
                             id="input-nik-ortu"
                           />
                         </div>
@@ -1905,8 +1909,9 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                             required
                             placeholder="08xxxxxxxxxx"
                             value={formData.noWA}
-                            onChange={(e) => setFormData({ ...formData, noWA: e.target.value.replace(/\D/g, "") })}
-                            className="w-full text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50 font-mono"
+                            onChange={(e) => setFormData({ ...formData, noWA: e.target.value })}
+                            inputMode="numeric"
+                            className="w-full text-slate-900 text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50 font-mono"
                             id="input-nowa"
                           />
                         </div>
@@ -1989,8 +1994,9 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                             required={formData.jenjang !== "MADIN"}
                             placeholder={formData.jenjang === "MADIN" ? "Opsional (Tidak Wajib)" : "8 Digit NPSN Sekolah Asal"}
                             value={formData.npsn}
-                            onChange={(e) => setFormData({ ...formData, npsn: e.target.value.replace(/\D/g, "") })}
-                            className="w-full text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50"
+                            onChange={(e) => setFormData({ ...formData, npsn: e.target.value })}
+                            inputMode="numeric"
+                            className="w-full text-slate-900 text-sm border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-slate-50/50"
                             id="input-npsn"
                           />
                         </div>
