@@ -1,0 +1,6 @@
+{
+  "name": "SPMB YASYFI",
+  "description": "Aplikasi Sistem Penerimaan Murid Baru (SPMB) Yayasan Yasyfi dengan dashboard admin, pengelolaan konten, pendaftaran berkas digital, dan simulasi broadcast WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

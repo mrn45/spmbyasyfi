@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "Pendaftar": {
+      "title": "Pendaftar",
+      "description": "Data siswa pendaftar PPDB",
+      "type": "object",
+      "properties": {
+        "noDaftar": { "type": "string" },
+        "nisn": { "type": "string" },
+        "nik": { "type": "string" },
+        "nama": { "type": "string" },
+        "tempatLahir": { "type": "string" },
+        "tglLahir": { "type": "string" },
+        "jk": { "type": "string" },
+        "agama": { "type": "string" },
+        "alamat": { "type": "string" },
+        "rtrw": { "type": "string" },
+        "dusun": { "type": "string" },
+        "desa": { "type": "string" },
+        "kecamatan": { "type": "string" },
+        "kodepos": { "type": "string" },
+        "namaAyah": { "type": "string" },
+        "namaIbu": { "type": "string" },
+        "nikOrtu": { "type": "string" },
+        "pekerjaan": { "type": "string" },
+        "penghasilan": { "type": "string" },
+        "noWA": { "type": "string" },
+        "asalSekolah": { "type": "string" },
+        "tahunLulus": { "type": "string" },
+        "npsn": { "type": "string" },
+        "jenjang": { "type": "string" },
+        "status": { "type": "string", "enum": ["Baru", "Terverifikasi", "Ditolak"] },
+        "files": {
+          "type": "object",
+          "properties": {
+            "kk": { "type": "object" },
+            "akta": { "type": "object" },
+            "skl": { "type": "object" },
+            "foto": { "type": "object" }
+          }
+        },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["noDaftar", "nisn", "nik", "nama", "tempatLahir", "tglLahir", "jk", "agama", "alamat", "noWA", "asalSekolah", "tahunLulus", "jenjang", "status", "files", "createdAt"]
+    },
+    "WebContent": {
+      "title": "WebContent",
+      "description": "Pengaturan konten halaman web sekolah",
+      "type": "object",
+      "properties": {
+        "profil": { "type": "string" },
+        "visimisi": { "type": "string" },
+        "hero_title": { "type": "string" },
+        "hero_subtitle": { "type": "string" },
+        "siswa_count": { "type": "string" },
+        "guru_count": { "type": "string" },
+        "keunggulan": { "type": "string" },
+        "ekskul": { "type": "string" },
+        "prestasi": { "type": "string" },
+        "galeri": { "type": "string" }
+      },
+      "required": ["profil", "visimisi", "keunggulan", "ekskul", "prestasi", "galeri"]
+    },
+    "WaSettings": {
+      "title": "WaSettings",
+      "description": "Pengaturan gateway WhatsApp sekolah",
+      "type": "object",
+      "properties": {
+        "endpoint": { "type": "string" },
+        "token": { "type": "string" },
+        "admin_wa": { "type": "string" }
+      },
+      "required": ["endpoint", "token"]
+    }
+  },
+  "firestore": {
+    "/pendaftar/{noDaftar}": {
+      "schema": "Pendaftar",
+      "description": "Koleksi pendaftar"
+    },
+    "/web_content/config": {
+      "schema": "WebContent",
+      "description": "Konfigurasi konten web"
+    },
+    "/wa_settings/config": {
+      "schema": "WaSettings",
+      "description": "Konfigurasi gateway WhatsApp"
+    }
+  }
+}
