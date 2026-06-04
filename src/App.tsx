@@ -1190,7 +1190,7 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
-            className="fixed top-5 left-1/2 -tranzinc-x-1/2 z-[150000] max-w-md w-[90%]"
+            className="fixed top-5 left-1/2 -translate-x-1/2 z-[150000] max-w-md w-[90%]"
             id="toast-notification"
           >
             <div className={`flex items-center gap-3 p-4 rounded-2xl shadow-[0_12px_40px_rgb(0,0,0,0.08)] border ${
@@ -2369,7 +2369,7 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                 {/* Search / Filter Deck */}
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                   <div className="relative w-full md:max-w-md">
-                    <Search className="absolute left-3 top-1/2 -tranzinc-y-1/2 text-zinc-400 h-4.5 w-4.5" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 h-4.5 w-4.5" />
                     <input
                       type="text"
                       placeholder="Cari Calon Siswa (Nama / NISN / No. Daftar)"
@@ -3062,7 +3062,7 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                     <button
                       type="button"
                       onClick={() => setShowAdminPassword(!showAdminPassword)}
-                      className="absolute right-3 top-1/2 -tranzinc-y-1/2 text-zinc-400 hover:text-zinc-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
                     >
                       {showAdminPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
