@@ -33,6 +33,7 @@ export interface Pendaftar {
   status: "Baru" | "Terverifikasi" | "Ditolak";
   files: PendaftarFiles;
   createdAt: string;
+  waLastStatus?: "terkirim" | "gagal";
 }
 
 export interface WebContent {

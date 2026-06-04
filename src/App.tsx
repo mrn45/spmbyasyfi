@@ -49,6 +49,7 @@ import {
   onSnapshot, 
   setDoc, 
   deleteDoc, 
+  updateDoc,
   writeBatch,
   getDocFromServer
 } from "firebase/firestore";
@@ -590,6 +591,53 @@ export default function App() {
     }
   };
 
+  // Helper function to send notification with gateway content-type compatibility (tries UrlEncoded, falls back to JSON)
+  const executeWaRequest = async (target: string, msg: string, label: string): Promise<boolean> => {
+    if (!waSettings.endpoint || !waSettings.token) return false;
+    try {
+      const formParams = new URLSearchParams();
+      formParams.append("target", target);
+      formParams.append("message", msg);
+
+      const res = await fetch(waSettings.endpoint, {
+        method: "POST",
+        headers: {
+          "Authorization": waSettings.token,
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: formParams
+      });
+
+      if (res.ok) {
+        console.log(`[WA Gateway] Notifikasi otomatis (${label}) terkirim via Form URL-Encoded.`);
+        return true;
+      }
+
+      const jsonRes = await fetch(waSettings.endpoint, {
+        method: "POST",
+        headers: {
+          "Authorization": waSettings.token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          target: target,
+          message: msg
+        })
+      });
+
+      if (jsonRes.ok) {
+        console.log(`[WA Gateway] Notifikasi otomatis (${label}) terkirim via JSON Fallback.`);
+        return true;
+      } else {
+        console.warn(`[WA Gateway] Gagal mengirim (${label}). Status urlencoded: ${res.status}, Status json: ${jsonRes.status}`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`[WA Gateway] Error HTTP fetch (${label}):`, error);
+      return false;
+    }
+  };
+
   // Submit PPDB Form
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -670,56 +718,12 @@ Terima kasih.
 --
 Panitia SPMB Yayasan Assyafiiyah Lenteng Barat`;
 
-      // Helper function to send notification with gateway content-type compatibility (tries UrlEncoded, falls back to JSON)
-      const sendWaMessage = async (target: string, msg: string, label: string) => {
-        try {
-          // Attempt standard application/x-www-form-urlencoded parameter binding (preferred by Fonnte, starsender, etc)
-          const formParams = new URLSearchParams();
-          formParams.append("target", target);
-          formParams.append("message", msg);
-
-          const res = await fetch(waSettings.endpoint, {
-            method: "POST",
-            headers: {
-              "Authorization": waSettings.token,
-              "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: formParams
-          });
-
-          if (res.ok) {
-            console.log(`[WA Gateway] Notifikasi otomatis (${label}) terkirim via Form URL-Encoded.`);
-            return true;
-          }
-
-          // Fallback to application/json format if gateway expects JSON-only
-          const jsonRes = await fetch(waSettings.endpoint, {
-            method: "POST",
-            headers: {
-              "Authorization": waSettings.token,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              target: target,
-              message: msg
-            })
-          });
-
-          if (jsonRes.ok) {
-            console.log(`[WA Gateway] Notifikasi otomatis (${label}) terkirim via JSON Fallback.`);
-            return true;
-          } else {
-            console.warn(`[WA Gateway] Gagal mengirim (${label}). Status urlencoded: ${res.status}, Status json: ${jsonRes.status}`);
-            return false;
-          }
-        } catch (error) {
-          console.error(`[WA Gateway] Error HTTP fetch (${label}):`, error);
-          return false;
-        }
-      };
-
       // Notify Parent
-      sendWaMessage(targetParent, parentMsg, "Pendaftar");
+      executeWaRequest(targetParent, parentMsg, "Pendaftar").then((success) => {
+        updateDoc(doc(db, "pendaftar", generatedNoDaftar), {
+          waLastStatus: success ? "terkirim" : "gagal"
+        }).catch(err => console.error("Failed to update WA status:", err));
+      });
 
       // Notify Admin
       if (waSettings.admin_wa) {
@@ -734,7 +738,7 @@ Sekolah Asal : ${newPendaftar.asalSekolah}
 Jumlah Total Siswa Terdaftar : ${totalCount}`;
 
         const targetWa = waSettings.admin_wa.replace(/\D/g, "").replace(/^0/, "62");
-        sendWaMessage(targetWa, adminMsg, "Admin");
+        executeWaRequest(targetWa, adminMsg, "Admin");
       }
     }
 
@@ -827,27 +831,16 @@ Terima kasih atas perhatian Anda.
 Panitia SPMB Yayasan Yasyfi`;
 
         const targetWa = student.noWA.replace(/\D/g, "").replace(/^0/, "62");
-        fetch(waSettings.endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": waSettings.token
-          },
-          body: JSON.stringify({
-            target: targetWa,
-            message: messageText
-          })
-        })
-        .then(res => {
-          if (res.ok) {
+        executeWaRequest(targetWa, messageText, "Pendaftar").then((success) => {
+          updateDoc(doc(db, "pendaftar", noDaftar), {
+            waLastStatus: success ? "terkirim" : "gagal"
+          }).catch(err => console.error("Failed to update WA status:", err));
+
+          if (success) {
             triggerAlert("success", `Status siswa ${noDaftar} diubah menjadi ${newStatus} & notifikasi WA otomatis dikirim ke pendaftar!`);
           } else {
             triggerAlert("success", `Status siswa ${noDaftar} diperbarui. Gagal mengirim WA (Status API Gateway tidak sukses).`);
           }
-        })
-        .catch(err => {
-          console.error("Gagal mengirim notifikasi status via WA:", err);
-          triggerAlert("success", `Status siswa ${noDaftar} diperbarui. Gagal menghubungi gateway WA.`);
         });
       } else {
         triggerAlert("success", `Status siswa ${noDaftar} berhasil diubah menjadi ${newStatus}. (Konfigurasi WA Gateway belum lengkap untuk notifikasi otomatis).`);
@@ -1120,18 +1113,13 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
       const promises = targetList.map(async (student) => {
         try {
           const targetWa = student.noWA.replace(/\D/g, "").replace(/^0/, "62");
-          const res = await fetch(waSettings.endpoint, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": waSettings.token
-            },
-            body: JSON.stringify({
-              target: targetWa,
-              message: broadcastMessage
-            })
-          });
-          if (res.ok) {
+          const success = await executeWaRequest(targetWa, broadcastMessage, "Broadcast");
+          
+          await updateDoc(doc(db, "pendaftar", student.noDaftar), {
+            waLastStatus: success ? "terkirim" : "gagal"
+          }).catch(err => console.error("Failed to update WA status for broadcast:", err));
+
+          if (success) {
             successCount++;
           } else {
             failCount++;
@@ -2428,6 +2416,7 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                         <th className="py-4 px-6 font-bold">NISN</th>
                         <th className="py-4 px-6 font-bold">Sekolah Asal</th>
                         <th className="py-4 px-6 font-bold">Whatsapp</th>
+                        <th className="py-4 px-6 font-bold">Pesan WA</th>
                         <th className="py-4 px-6 font-bold">Ubah Status</th>
                         <th className="py-4 px-6 font-bold text-center">Aksi</th>
                       </tr>
@@ -2452,6 +2441,19 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                             <td className="py-4 px-6 font-medium text-zinc-600">{student.nisn}</td>
                             <td className="py-4 px-6 text-zinc-500 font-medium">{student.asalSekolah}</td>
                             <td className="py-4 px-6 font-mono text-zinc-600">{student.noWA}</td>
+                            <td className="py-4 px-6 text-center">
+                              {student.waLastStatus === 'terkirim' ? (
+                                <span className="inline-flex items-center text-emerald-600 tooltip" title="Pesan Terakhir Sukses Terkirim">
+                                  <CheckCircle className="h-4 w-4" />
+                                </span>
+                              ) : student.waLastStatus === 'gagal' ? (
+                                <span className="inline-flex items-center text-rose-600 tooltip" title="Gagal Mengirimkan Pesan Terakhir">
+                                  <XCircle className="h-4 w-4" />
+                                </span>
+                              ) : (
+                                <span className="text-zinc-400 text-xs">-</span>
+                              )}
+                            </td>
                             <td className="py-4 px-6">
                               <select
                                 value={student.status}
