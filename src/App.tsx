@@ -51,7 +51,8 @@ import {
   deleteDoc, 
   updateDoc,
   writeBatch,
-  getDocFromServer
+  getDocFromServer,
+  arrayUnion
 } from "firebase/firestore";
 import { db, storage, auth, handleFirestoreError, OperationType } from "./firebase";
 import { ref as storageRef, uploadString, getDownloadURL } from "firebase/storage";
@@ -164,7 +165,7 @@ export default function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [isConfirmDeleteAllOpen, setIsConfirmDeleteAllOpen] = useState<boolean>(false);
   const [currentDetailStudent, setCurrentDetailStudent] = useState<Pendaftar | null>(null);
-  const [detailSubTab, setDetailSubTab] = useState<"pribadi" | "ortu" | "sekolah" | "berkas">("pribadi");
+  const [detailSubTab, setDetailSubTab] = useState<"pribadi" | "ortu" | "sekolah" | "berkas" | "wa">("pribadi");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [jenjangFilter, setJenjangFilter] = useState<string>("All");
@@ -721,7 +722,12 @@ Panitia SPMB Yayasan Assyafiiyah Lenteng Barat`;
       // Notify Parent
       executeWaRequest(targetParent, parentMsg, "Pendaftar").then((success) => {
         updateDoc(doc(db, "pendaftar", generatedNoDaftar), {
-          waLastStatus: success ? "terkirim" : "gagal"
+          waLastStatus: success ? "terkirim" : "gagal",
+          waLogs: arrayUnion({
+            timestamp: new Date().toISOString(),
+            status: success ? "terkirim" : "gagal",
+            keterangan: "Pesan Pendaftaran Awal"
+          })
         }).catch(err => console.error("Failed to update WA status:", err));
       });
 
@@ -833,7 +839,12 @@ Panitia SPMB Yayasan Yasyfi`;
         const targetWa = student.noWA.replace(/\D/g, "").replace(/^0/, "62");
         executeWaRequest(targetWa, messageText, "Pendaftar").then((success) => {
           updateDoc(doc(db, "pendaftar", noDaftar), {
-            waLastStatus: success ? "terkirim" : "gagal"
+            waLastStatus: success ? "terkirim" : "gagal",
+            waLogs: arrayUnion({
+              timestamp: new Date().toISOString(),
+              status: success ? "terkirim" : "gagal",
+              keterangan: `Perubahan Status: ${newStatus}`
+            })
           }).catch(err => console.error("Failed to update WA status:", err));
 
           if (success) {
@@ -1116,7 +1127,12 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
           const success = await executeWaRequest(targetWa, broadcastMessage, "Broadcast");
           
           await updateDoc(doc(db, "pendaftar", student.noDaftar), {
-            waLastStatus: success ? "terkirim" : "gagal"
+            waLastStatus: success ? "terkirim" : "gagal",
+            waLogs: arrayUnion({
+              timestamp: new Date().toISOString(),
+              status: success ? "terkirim" : "gagal",
+              keterangan: "Broadcast Pesan Massal"
+            })
           }).catch(err => console.error("Failed to update WA status for broadcast:", err));
 
           if (success) {
@@ -3343,6 +3359,40 @@ jumlah siswa yang mendaftar (sesuai jumlah siswa yang menyelesaikan pendaftaran 
                       )}
                     </div>
                   </div>
+                </div>
+
+                {/* 4. RIWAYAT PENGIRIMAN WHATSAPP */}
+                <div className="bg-zinc-50 p-5 rounded-3xl border border-zinc-200 space-y-4">
+                  <h4 className="font-bold text-sm text-zinc-900 border-b border-zinc-200 pb-2 flex items-center gap-1.5">
+                    <Smartphone className="h-4.5 w-4.5 text-emerald-500" /> Riwayat Log Pengiriman WhatsApp
+                  </h4>
+                  {currentDetailStudent.waLogs && currentDetailStudent.waLogs.length > 0 ? (
+                    <div className="space-y-3">
+                      {[...currentDetailStudent.waLogs].reverse().map((log, i) => (
+                        <div key={i} className="flex justify-between items-center text-xs p-3 bg-white rounded-2xl border border-zinc-200">
+                          <div>
+                            <div className="font-bold text-zinc-800">{log.keterangan}</div>
+                            <div className="text-zinc-500 text-[10px] mt-0.5">{new Date(log.timestamp).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'medium' })}</div>
+                          </div>
+                          <div>
+                            {log.status === 'terkirim' ? (
+                              <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full text-[10px]">
+                                <CheckCircle className="h-3.5 w-3.5" /> Berhasil
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 bg-rose-100 text-rose-700 font-bold px-2.5 py-1 rounded-full text-[10px]">
+                                <XCircle className="h-3.5 w-3.5" /> Gagal
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-zinc-500 text-center py-4 bg-white border border-dashed border-zinc-300 rounded-2xl font-medium">
+                      Belum ada riwayat pengiriman WhatsApp.
+                    </p>
+                  )}
                 </div>
 
               </div>

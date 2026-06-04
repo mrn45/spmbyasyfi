@@ -5,6 +5,12 @@ export interface PendaftarFiles {
   foto: { name: string; mimeType: string; data: string } | null;
 }
 
+export interface WaLogEntry {
+  timestamp: string;
+  status: "terkirim" | "gagal";
+  keterangan: string;
+}
+
 export interface Pendaftar {
   noDaftar: string;
   nisn: string;
@@ -34,6 +40,7 @@ export interface Pendaftar {
   files: PendaftarFiles;
   createdAt: string;
   waLastStatus?: "terkirim" | "gagal";
+  waLogs?: WaLogEntry[];
 }
 
 export interface WebContent {
